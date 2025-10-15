@@ -1,15 +1,24 @@
 import { useState, useEffect } from 'react';
-import { ChefHat, Heart, Home, Loader2 } from 'lucide-react';
+import { ChefHat, Heart, Home, Loader2, LogIn } from 'lucide-react';
 import { IngredientInput } from './components/IngredientInput';
 import { FilterBar } from './components/FilterBar';
 import { RecipeCard } from './components/RecipeCard';
 import { RecipeModal } from './components/RecipeModal';
 import { AIRecipeModal } from './components/AIRecipeModal';
+import { AuthModal } from './components/AuthModal';
+import { UserProfile } from './components/UserProfile';
 import { searchRecipes, getAllRecipes, RecipeFilters, RecipeMatch } from './services/recipeService';
 import { getFavorites, addFavorite, removeFavorite, updateRating, isFavorite as checkIsFavorite } from './services/favoritesService';
 import { generateAIRecipes, GeneratedRecipe } from './services/aiRecipeService';
+import { supabase } from './lib/supabase';
 
 type View = 'search' | 'favorites';
+
+type User = {
+  id: string;
+  email: string;
+  full_name?: string;
+};
 
 function App() {
   const [view, setView] = useState<View>('search');
@@ -29,9 +38,57 @@ function App() {
   const [aiError, setAiError] = useState<string | null>(null);
   const [showAIModal, setShowAIModal] = useState(false);
 
+  // Authentication State
+  const [user, setUser] = useState<User | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+
   useEffect(() => {
+    // Initialize authentication
+    initializeAuth();
     loadFavorites();
   }, []);
+
+  const initializeAuth = async () => {
+    try {
+      // Get initial session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email!,
+          full_name: session.user.user_metadata?.full_name
+        });
+      }
+
+      // Listen for auth changes
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (_event, session) => {
+          if (session?.user) {
+            setUser({
+              id: session.user.id,
+              email: session.user.email!,
+              full_name: session.user.user_metadata?.full_name
+            });
+            // Reload favorites when user signs in
+            loadFavorites();
+          } else {
+            setUser(null);
+            // Clear favorites when user signs out
+            setFavorites(new Set());
+            setFavoriteRecipes([]);
+            setRatings(new Map());
+          }
+        }
+      );
+
+      return () => subscription.unsubscribe();
+    } catch (error) {
+      console.error('Auth initialization error:', error);
+    } finally {
+      setIsLoadingAuth(false);
+    }
+  };
 
   const loadFavorites = async () => {
     try {
@@ -178,7 +235,7 @@ function App() {
               </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => setView('search')}
                 className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
@@ -206,6 +263,27 @@ function App() {
                   </span>
                 )}
               </button>
+
+              {/* Authentication Section */}
+              {isLoadingAuth ? (
+                <div className="flex items-center gap-2 px-4 py-3">
+                  <div className="w-6 h-6 border-2 border-gray-300 border-t-emerald-500 rounded-full animate-spin"></div>
+                </div>
+              ) : user ? (
+                <UserProfile 
+                  user={user} 
+                  onSignOut={() => setUser(null)}
+                  favoritesCount={favorites.size}
+                />
+              ) : (
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-xl font-semibold hover:from-slate-800 hover:to-slate-900 hover:shadow-lg hover:shadow-slate-200 transition-all duration-200"
+                >
+                  <LogIn className="w-5 h-5" />
+                  <span className="hidden sm:inline">Sign In</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -345,6 +423,12 @@ function App() {
         recipes={aiRecipes}
         isLoading={isGeneratingAI}
         error={aiError || undefined}
+      />
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={() => setShowAuthModal(false)}
       />
 
       <footer className="bg-white border-t border-gray-200 mt-20">

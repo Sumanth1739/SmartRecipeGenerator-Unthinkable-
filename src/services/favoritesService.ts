@@ -2,17 +2,24 @@ import { supabase } from '../lib/supabase';
 
 const USER_ID_KEY = 'recipe_app_user_id';
 
-function getUserId(): string {
+async function getUserId(): Promise<string> {
+  // First try to get authenticated user
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    return user.id;
+  }
+
+  // Fallback to anonymous user for backward compatibility
   let userId = localStorage.getItem(USER_ID_KEY);
   if (!userId) {
-    userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    userId = `anonymous_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     localStorage.setItem(USER_ID_KEY, userId);
   }
   return userId;
 }
 
 export async function getFavorites() {
-  const userId = getUserId();
+  const userId = await getUserId();
   const { data, error } = await supabase
     .from('user_favorites')
     .select('*')
@@ -26,7 +33,7 @@ export async function getFavorites() {
 }
 
 export async function isFavorite(recipeId: string): Promise<boolean> {
-  const userId = getUserId();
+  const userId = await getUserId();
   const { data, error } = await supabase
     .from('user_favorites')
     .select('id')
@@ -43,7 +50,7 @@ export async function isFavorite(recipeId: string): Promise<boolean> {
 }
 
 export async function addFavorite(recipeId: string, rating?: number) {
-  const userId = getUserId();
+  const userId = await getUserId();
   const { error } = await supabase
     .from('user_favorites')
     .insert({
@@ -58,7 +65,7 @@ export async function addFavorite(recipeId: string, rating?: number) {
 }
 
 export async function removeFavorite(recipeId: string) {
-  const userId = getUserId();
+  const userId = await getUserId();
   const { error } = await supabase
     .from('user_favorites')
     .delete()
@@ -71,7 +78,7 @@ export async function removeFavorite(recipeId: string) {
 }
 
 export async function updateRating(recipeId: string, rating: number) {
-  const userId = getUserId();
+  const userId = await getUserId();
   const { error } = await supabase
     .from('user_favorites')
     .update({ rating })
@@ -84,7 +91,7 @@ export async function updateRating(recipeId: string, rating: number) {
 }
 
 export async function getRating(recipeId: string): Promise<number | null> {
-  const userId = getUserId();
+  const userId = await getUserId();
   const { data, error } = await supabase
     .from('user_favorites')
     .select('rating')

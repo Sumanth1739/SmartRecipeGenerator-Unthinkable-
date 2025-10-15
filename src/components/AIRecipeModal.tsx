@@ -12,6 +12,21 @@ type AIRecipeModalProps = {
 export function AIRecipeModal({ isOpen, onClose, recipes, isLoading, error }: AIRecipeModalProps) {
   if (!isOpen) return null;
 
+  // Declare recipe only once
+  let recipe: any = {};
+
+  try {
+    if (typeof aiRecipe === 'string') {
+      // Try to extract JSON object from response string
+      const match = aiRecipe.match(/\{[\s\S]*\}/);
+      recipe = match ? JSON.parse(match[0]) : {};
+    } else if (typeof aiRecipe === 'object' && aiRecipe !== null) {
+      recipe = aiRecipe;
+    }
+  } catch {
+    recipe = {};
+  }
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-gray-100 max-w-4xl w-full max-h-[90vh] overflow-hidden">

@@ -27,6 +27,7 @@ const commonSubstitutions: Record<string, string[]> = {
 };
 
 function normalizeIngredient(ingredient: string): string {
+  if (!ingredient) return "";
   return ingredient.toLowerCase().trim().replace(/s$/, '');
 }
 
@@ -52,7 +53,7 @@ export async function searchRecipes(
   userIngredients: string[],
   filters: RecipeFilters = {}
 ): Promise<RecipeMatch[]> {
-  let query = supabase.from('recipes').select('*');
+  let query = supabase.from('recipes').select('*, ingredients, instructions, image_url');
 
   if (filters.dietType && filters.dietType.length > 0) {
     query = query.overlaps('diet_type', filters.dietType);
@@ -79,27 +80,34 @@ export async function searchRecipes(
   const normalizedUserIngredients = userIngredients.map(normalizeIngredient);
 
   const recipesWithScores: RecipeMatch[] = recipes.map(recipe => {
-    const recipeIngredients = recipe.ingredients.map((ing: { name: string }) => ing.name);
-    const normalizedRecipeIngredients = recipeIngredients.map(normalizeIngredient);
+    // Support both [{name: string}] and [string] ingredient formats
+    const recipeIngredients = Array.isArray(recipe.ingredients)
+      ? recipe.ingredients.map((ing: any) => typeof ing === "string" ? ing : ing?.name)
+      : [];
+    const filteredRecipeIngredients = recipeIngredients.filter((name: string | undefined): name is string => !!name);
+    const normalizedRecipeIngredients = filteredRecipeIngredients.map(normalizeIngredient);
+
+    // Debug logs
+    console.log('Normalized user ingredients:', normalizedUserIngredients);
+    console.log('Normalized recipe ingredients:', normalizedRecipeIngredients);
 
     const matchedIngredients: string[] = [];
     const missingIngredients: string[] = [];
 
-    recipeIngredients.forEach((ingredient: string, index: number) => {
-      const normalized = normalizedRecipeIngredients[index];
+    normalizedRecipeIngredients.forEach((normalized, index) => {
       const isMatched = normalizedUserIngredients.some(userIng =>
-        userIng.includes(normalized) || normalized.includes(userIng)
+        userIng === normalized // strict match
       );
 
       if (isMatched) {
-        matchedIngredients.push(ingredient);
+        matchedIngredients.push(filteredRecipeIngredients[index]);
       } else {
-        missingIngredients.push(ingredient);
+        missingIngredients.push(filteredRecipeIngredients[index]);
       }
     });
 
-    const matchScore = recipeIngredients.length > 0
-      ? (matchedIngredients.length / recipeIngredients.length) * 100
+    const matchScore = filteredRecipeIngredients.length > 0
+      ? (matchedIngredients.length / filteredRecipeIngredients.length) * 100
       : 0;
 
     const substitutions = findSubstitutions(missingIngredients, userIngredients);
@@ -113,16 +121,16 @@ export async function searchRecipes(
     };
   });
 
-  // Filter recipes to only include those with at least 50% ingredient match
-  const filteredRecipes = recipesWithScores.filter(recipe => recipe.matchScore >= 50);
-  
+  // Only include recipes with more than 50% ingredient match
+  const filteredRecipes = recipesWithScores.filter(recipe => recipe.matchScore > 50);
+
   return filteredRecipes.sort((a, b) => b.matchScore - a.matchScore);
 }
 
 export async function getRecipeById(id: string): Promise<Recipe | null> {
   const { data, error } = await supabase
     .from('recipes')
-    .select('*')
+    .select('*, ingredients, instructions, image_url')
     .eq('id', id)
     .maybeSingle();
 
@@ -136,7 +144,7 @@ export async function getRecipeById(id: string): Promise<Recipe | null> {
 export async function getAllRecipes(): Promise<Recipe[]> {
   const { data, error } = await supabase
     .from('recipes')
-    .select('*')
+    .select('*, ingredients, instructions, image_url')
     .order('name');
 
   if (error) {

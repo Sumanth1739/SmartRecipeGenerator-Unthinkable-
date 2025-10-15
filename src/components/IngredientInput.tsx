@@ -177,8 +177,8 @@ export function IngredientInput({ ingredients, onIngredientsChange, onSearch, on
               onClick={() => onIngredientsChange([])}
               className="text-sm font-medium transition-colors"
               style={{ color: '#3B82F6' }}
-              onMouseEnter={(e) => e.target.style.color = '#2563EB'}
-              onMouseLeave={(e) => e.target.style.color = '#3B82F6'}
+              onMouseEnter={(e) => (e.target as HTMLButtonElement).style.color = '#2563EB'}
+              onMouseLeave={(e) => (e.target as HTMLButtonElement).style.color = '#3B82F6'}
             >
               Clear All
             </button>

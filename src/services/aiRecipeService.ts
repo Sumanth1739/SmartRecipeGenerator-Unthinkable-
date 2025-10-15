@@ -238,6 +238,3 @@ function generateInstructions(recipeName: string, ingredients: string[]): string
     'Serve hot'
   ];
 }
-
-
-
