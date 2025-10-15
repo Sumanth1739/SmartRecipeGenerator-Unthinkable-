@@ -7,7 +7,6 @@ It uses AI-powered ingredient recognition, smart recipe matching, and a beautifu
 
 ## 🌐 Live Demo
 
-[![Smart Recipe Generator](./1.png)](https://smart-recipe-generator-unthinkable.vercel.app/)  
 Click the image or visit: [https://smart-recipe-generator-unthinkable.vercel.app/](https://smart-recipe-generator-unthinkable.vercel.app/)
 
 ---
