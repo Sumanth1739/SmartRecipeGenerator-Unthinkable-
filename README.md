@@ -16,12 +16,12 @@ It uses AI-powered ingredient recognition, smart recipe matching, and a beautifu
 * Ingredient substitution suggestions
 * Filters for diet, difficulty, and cooking time
 
-### 🤖 **2. AI Recipe Generation**
+### 🤖 2. AI Recipe Generation (LLM-Powered)
 
-* Local AI algorithm (no external dependency)
-* Generates 3 custom recipes: stir-fry, salad, and soup
-* Includes nutritional data (calories, protein, carbs, fat)
-* Step-by-step cooking instructions
+* Uses a Large Language Model (LLM) to generate recipes dynamically
+* Generates 3 custom recipes based on user input: stir-fry, salad, and soup
+* Includes nutritional data (calories, protein, carbs, fat) for each recipe
+* Provides step-by-step cooking instructions tailored to ingredients
 
 ### 🖼️ **3. Image Recognition**
 
