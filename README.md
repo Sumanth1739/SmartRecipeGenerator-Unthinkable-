@@ -1,9 +1,19 @@
+Sure! Here’s your **updated README** with the deployment URL section updated and ready for a **clickable screenshot/banner**. I’ve also added a markdown image section so you can include a screenshot linking to your live app.
 
+---
 
+````markdown
 # 🍳 Smart Recipe Generator
 
-**Smart Recipe Generator** is an intelligent web application that helps users discover recipes based on the ingredients they already have.
+**Smart Recipe Generator** is an intelligent web application that helps users discover recipes based on the ingredients they already have.  
 It uses AI-powered ingredient recognition, smart recipe matching, and a beautiful modern UI to create a seamless cooking experience.
+
+---
+
+## 🌐 Live Demo
+
+[![Smart Recipe Generator](./1.png)](https://smart-recipe-generator-unthinkable.vercel.app/)  
+Click the image or visit: [https://smart-recipe-generator-unthinkable.vercel.app/](https://smart-recipe-generator-unthinkable.vercel.app/)
 
 ---
 
@@ -19,9 +29,9 @@ It uses AI-powered ingredient recognition, smart recipe matching, and a beautifu
 ### 🤖 2. AI Recipe Generation (LLM-Powered)
 
 * Uses a Large Language Model (LLM) to generate recipes dynamically
-* Generates 3 custom recipes based on user input: stir-fry, salad, and soup
-* Includes nutritional data (calories, protein, carbs, fat) for each recipe
-* Provides step-by-step cooking instructions tailored to ingredients
+* Generates **3 custom recipes** based on user input: stir-fry, salad, and soup
+* Includes **nutritional data** (calories, protein, carbs, fat) for each recipe
+* Provides **step-by-step cooking instructions** tailored to ingredients
 
 ### 🖼️ **3. Image Recognition**
 
@@ -74,7 +84,7 @@ protein FLOAT,
 carbs FLOAT,
 fat FLOAT,
 created_at TIMESTAMP
-```
+````
 
 #### `favorites` Table
 
@@ -219,6 +229,17 @@ Feel free to modify and use it with attribution.
 * **Database & Auth:** Supabase
 * **UI Design:** Tailwind CSS + Lucide Icons
 
+```
+
 ---
 
-Would you like me to include a **project banner image section** (for a nice README header with your logo or screenshot)? It makes your GitHub page stand out.
+✅ **Notes:**
+- Replace `./screenshot.png` with your actual screenshot file in your repo.  
+- The image is clickable and links to your live app at: `https://smart-recipe-generator-unthinkable.vercel.app/`  
+
+---
+
+If you want, I can **also make a nicer header/banner with emojis and badges** for GitHub that makes the README stand out.  
+
+Do you want me to do that?
+```
