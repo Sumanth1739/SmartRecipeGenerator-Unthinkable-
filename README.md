@@ -112,4 +112,4 @@ Click the image or visit: [https://smart-recipe-generator-unthinkable.vercel.app
 ## 🎨 UI/UX Highlights
 - **Glassmorphism design** with backdrop blur
 - **Emerald–teal gradient palette**
-- **Modern typography and smooth ani**
+- **Modern typography and smooth animation.
